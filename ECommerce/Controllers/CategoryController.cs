@@ -1,4 +1,5 @@
 ﻿using ECommerce.Data;
+using ECommerce.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerce.Controllers
@@ -23,10 +24,36 @@ namespace ECommerce.Controllers
             // Define an action method named 'Index' that returns an 'IActionResult'.
             // This method is responsible for handling requests to the 'Index' page for categories.
 
-            var objCategoryList = _db.Categories.ToList();
+            List<Category> objCategoryList = _db.Categories.ToList();
 
-            return View();
+            return View(objCategoryList);
             // Return a view as the result of this action method. In this case, 'View()' returns the default view associated with this action.
+        }
+
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult Create(Category obj)
+        {
+            if(obj.Name == obj.DisplayOrder.ToString())
+            {
+                ModelState.AddModelError("Name", "The DisplayOrder cannot exactly match the name");
+            }
+            if (obj != null && obj.Name != null && obj.Name.ToLower() == "test")
+            {
+                ModelState.AddModelError("", "Test is an invalid value");
+            }
+
+            if (ModelState.IsValid)
+            {
+            _db.Categories.Add(obj);
+            _db.SaveChanges();
+            return RedirectToAction("Index");
+            }
+            return View();
         }
     }
 }
